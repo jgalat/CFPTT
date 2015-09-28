@@ -174,3 +174,212 @@ Fixpoint exists_ (A:Set) (p:A->bool) (xs:list A) : bool
 
 
 End Ejercicio4.
+
+Section Ejercicio5.
+
+Fixpoint inverse (A:Set) (t:bintree A): bintree A
+:=   match t with
+        emptyt => emptyt A
+      | addt t1 x t2 => addt A (inverse A t2) x (inverse A t1)
+     end.
+
+Fixpoint countExternbt (A:Set) (t:bintree A) : nat
+:=   match t with
+        emptyt => 0
+      | addt t1 _ t2 => match t1, t2 with
+                           emptyt, emptyt => 1
+                         | _, _  => countExternbt A t1 + countExternbt A t2
+                        end
+     end.
+
+Fixpoint countInternbt (A:Set) (t:bintree A) : nat
+:=   match t with
+        emptyt => 0
+      | addt t1 _ t2 => match t1,t2 with
+                           emptyt, emptyt => 0
+                         | _, _         => 1 + countInternbt A t1 + countInternbt A t2
+                        end
+     end.
+
+Definition InternGTExternbt (A:Set) (t:bintree A) : bool
+:= leBool (countExternbt A t) (countInternbt A t).
+
+
+End Ejercicio5.
+
+Section Ejercicio6.
+
+Fixpoint eq_nat (m n: nat) : bool
+:=   match m, n with
+        0, 0 => true
+      | S _, 0 => false
+      | 0, S _ => false
+      | S x, S y => eq_nat x y
+     end.
+
+Definition ListN := list nat.
+
+Fixpoint member (n:nat) (l:ListN) : bool
+:=   match l with
+        emptyl => false
+      | consl x xs => if (eq_nat x n)
+                      then true
+                      else member n xs
+     end.
+
+Fixpoint delete (l:ListN) (x:nat) : ListN
+:=   match l with
+        emptyl => emptyl nat
+      | consl n ns => if (eq_nat x n)
+                      then delete ns x
+                      else consl nat n (delete ns x)
+     end.
+
+Fixpoint ordered_insert (n:nat) (l:ListN) : ListN
+:=   match l with
+        emptyl => consl nat n l
+      | consl x xs => if leBool n x
+                      then consl nat n l
+                      else consl nat x (ordered_insert n xs)
+     end.
+
+
+Fixpoint insert_sort' (l o:ListN) : ListN
+:=   match l with
+        emptyl => o
+      | consl x xs => insert_sort' xs (ordered_insert x o)
+     end.
+
+
+Definition insert_sort (l:ListN) : ListN
+:=  insert_sort' l (emptyl nat).
+
+Fixpoint member' (A:Set) (eq:A->A->bool) (n:A) (l:list A) : bool
+:=   match l with
+        emptyl => false
+      | consl x xs => if (eq x n)
+                      then true
+                      else member' A eq n xs
+     end.
+
+Fixpoint delete' (A:Set) (eq:A->A->bool) (l:list A) (x:A) : list A
+:=   match l with
+        emptyl => emptyl A
+      | consl n ns => if (eq x n)
+                      then delete' A eq ns x
+                      else consl A n (delete' A eq ns x)
+     end.
+
+Fixpoint ordered_insert' (A:Set) (le:A->A->bool) (n:A) (l:list A) : list A
+:=   match l with
+        emptyl => consl A n l
+      | consl x xs => if le n x
+                      then consl A n l
+                      else consl A x (ordered_insert' A le n xs)
+     end.
+
+
+Fixpoint insert_sort_aux (A:Set) (le:A->A->bool) (l o:list A) : list A
+:=   match l with
+        emptyl => o
+      | consl x xs => insert_sort_aux A le xs (ordered_insert' A le x o)
+     end.
+
+
+Definition insert_sort'' (A:Set) (le:A->A->bool) (l:list A) : list A
+:=  insert_sort_aux A le l (emptyl A).
+
+End Ejercicio6.
+
+Section Ejercicio7.
+
+Inductive Exp (A:Set) : Set := Atomo : A -> Exp A
+                             | Add : Exp A -> Exp A -> Exp A
+                             | Mul : Exp A -> Exp A -> Exp A
+                             | Neg : Exp A -> Exp A.
+
+Fixpoint EvalNat (e: Exp nat) : nat
+:=   match e with
+        Atomo n => n
+      | Add m n => (EvalNat m) + (EvalNat n)
+      | Mul m n => (EvalNat m) * (EvalNat n)
+      | Neg m   => (EvalNat m)
+     end.
+
+Fixpoint EvalBool (e: Exp bool) : bool
+:=   match e with
+        Atomo b => b
+      | Add m n => Or (EvalBool m) (EvalBool n)
+      | Mul m n => And (EvalBool m) (EvalBool n)
+      | Neg m   => Not (EvalBool m)
+     end.
+
+End Ejercicio7.
+
+Section Ejercicio8.
+
+(* 1 *)
+Lemma Or_Conm: forall a b : bool, Or a b = Or b a.
+Proof.
+  intros a b.
+
+  destruct a; simpl.
+  destruct b; simpl; reflexivity.
+  destruct b; reflexivity.
+Qed.
+
+Lemma Or_Assoc: forall a b c: bool, Or (Or a b) c = Or a (Or b c).
+Proof.
+  intros a b c.
+  destruct a; simpl; reflexivity.
+Qed.
+
+Lemma And_Conm: forall a b: bool, And a b = And b a.
+Proof.
+  intros a b.
+  destruct a; simpl.
+  destruct b; simpl; reflexivity.
+  destruct b; reflexivity.
+Qed.
+
+Lemma And_Assoc: forall a b c: bool, And (And a b) c = And a (And b c).
+Proof.
+  intros a b c.
+  destruct a; simpl; reflexivity.
+Qed.
+
+Lemma LAnd : forall a b : bool, And a b = true <-> a = true /\ b = true.
+Proof.
+  intros a b;unfold iff; split; intros.
+  destruct a; destruct b; auto.
+  destruct a; destruct b; auto; elim H; intros; discriminate.
+Qed.
+
+Lemma LOr1 : forall a b : bool, Or a b = false <-> a = false /\ b = false.
+Proof.
+  intros a b; unfold iff; split; intros.
+  destruct a; destruct b; auto.
+  destruct a; destruct b; auto; elim H; intros; discriminate.
+Qed.
+
+Lemma LOr2 : forall a b : bool, Or a b = true <-> a = true \/ b = true.
+Proof.
+  intros a b; unfold iff; split; intros.
+  destruct a; destruct b; auto.
+  destruct a; destruct b; auto; elim H; intros; discriminate.
+Qed.
+
+Lemma LXor : forall a b : bool, Xor a b = true <-> a <> b.
+Proof.
+  intros a b; unfold iff; split; intros.
+  destruct a; destruct b; auto; elim H; intros; discriminate.
+  destruct a; destruct b; auto; elim H; intros; auto.
+Qed.
+
+Lemma LNot : forall b : bool, Not (Not b) = b.
+Proof.
+  intro b.
+  destruct b; simpl; reflexivity.
+Qed. 
+
+End Ejercicio8.
