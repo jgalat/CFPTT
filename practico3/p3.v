@@ -97,8 +97,6 @@ Proof.
   intros.
   compute.
   reflexivity.
-  
-
 Qed.
 
 Theorem e4_b : forall x:A, (o A A A id id) x = id x.
