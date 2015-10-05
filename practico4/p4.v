@@ -102,19 +102,19 @@ Section Ejercicio3.
 Fixpoint sum (x y:nat) : nat
 :=   match x with
         0 => y
-      | S n => sum n (S y)
+      | S n => S (sum n y)
      end.
 
 Fixpoint prod (x y:nat) : nat
 :=   match x with
         0 => 0
-      | S n => prod n (sum y y)
+      | S n => sum y (prod n y) 
      end.
 
 Fixpoint pot (x y: nat) : nat
 :=   match y with
         0 => 1
-      | S n => pot (prod x x) n
+      | S n => prod x (pot x n)
      end.
 
 Fixpoint leBool (x y:nat) : bool
@@ -383,3 +383,122 @@ Proof.
 Qed. 
 
 End Ejercicio8.
+
+Section Ejercicio9.
+
+Lemma SumO : forall n : nat, sum n 0 = n.
+Proof.
+  intro.
+  induction n; simpl.
+
+  reflexivity.
+
+  rewrite -> IHn. reflexivity.
+Qed.
+
+Lemma SumS : forall n m : nat, sum n (S m) = sum (S n) m.
+Proof.
+  intros.
+
+  induction n.
+  simpl; reflexivity.
+  
+  simpl.
+  rewrite -> IHn; simpl; reflexivity.
+Qed.
+
+Lemma SumConm : forall n m : nat, sum n m = sum m n.
+Proof.
+  intros.
+  induction n.
+  rewrite SumO.
+  simpl; reflexivity.
+  
+  simpl.
+  rewrite -> IHn.
+  rewrite SumS; simpl;reflexivity.
+Qed.
+
+Lemma SumAsoc : forall n m p : nat, sum n (sum m p) = sum (sum n m) p.
+Proof.
+  intros n m p.
+  induction n.
+  simpl; reflexivity.
+  
+  simpl. rewrite -> IHn.
+  reflexivity.
+Qed.
+
+Lemma ProdO : forall n : nat, prod n 0 = 0.
+Proof.
+  intro.
+  induction n; auto.
+Qed.
+
+Lemma ProdS: forall n m : nat, prod n (S m) = sum n (prod n m).
+Proof.
+  intros.
+  induction n; simpl.
+  reflexivity.
+  rewrite -> IHn.
+ 
+  induction m; simpl; auto.
+  rewrite -> SumS; simpl.
+
+  rewrite -> SumAsoc.
+  rewrite -> (SumConm m n).
+  rewrite -> SumAsoc.
+  reflexivity.
+Qed.
+
+Lemma ProdConm : forall n m : nat, prod n m = prod m n.
+Proof.
+  intros n m.
+  induction n; simpl.
+  
+  induction m; simpl.
+
+  reflexivity.
+  assumption.
+  
+  rewrite -> IHn.
+  induction m; simpl.
+  reflexivity.
+
+  rewrite -> ProdS, SumAsoc.
+  rewrite -> (SumConm m n).
+  rewrite -> SumAsoc.
+  reflexivity.  
+Qed.
+
+Lemma ProdDistr : forall n m p : nat,
+prod n (sum m p) = sum (prod n m) (prod n p).
+Proof.
+  intros n m p.
+  induction n; simpl; auto.
+
+  rewrite -> IHn.
+  rewrite -> SumAsoc.
+  rewrite <- (SumAsoc m p (prod n m)).
+  rewrite -> (SumConm p (prod n m)). 
+  rewrite -> SumAsoc.
+  rewrite <- (SumAsoc (sum m (prod n m)) p (prod n p)).
+  reflexivity.
+Qed.
+
+Lemma ProdAsoc : forall n m p : nat, prod n (prod m p) = prod (prod n m) p.
+Proof.
+  intros n m p.
+  induction n; auto.
+
+  simpl.
+  rewrite -> IHn.
+  rewrite -> (ProdConm (sum m (prod n m)) p).
+  rewrite -> ProdDistr.
+  rewrite -> (ProdConm m p).
+  rewrite -> (ProdConm p (prod n m)).
+  auto.
+Qed.
+
+End Ejercicio9.
+
