@@ -3,7 +3,7 @@ Section Ejercicio1.
 
 (* 1.1 *)
 Inductive list (A:Set): Set
-:=   emptyl: list A
+:=   nil: list A
    | consl: A -> list A -> list A.
 
 Inductive bintree (A:Set):Set
@@ -27,14 +27,14 @@ Inductive leq : nat -> nat -> Prop
 
 (* 1.4 *)
 Inductive eq_list (A:Set) : list A -> list A -> Prop
-:=    eq_list0 : eq_list A (emptyl A) (emptyl A)
+:=    eq_list0 : eq_list A (nil A) (nil A)
     | eq_listS : forall (x:A) (xs ys: list A), eq_list A xs ys -> 
                  eq_list A (consl A x xs) (consl A x ys).
 
 (* 1.5 *)
 Inductive sorted (A:Set) (R:A -> A -> Prop) : list A -> Prop
-:=    sorted0 : sorted A R (emptyl A)
-    | sorted1 : forall (x:A), sorted A R (consl A x (emptyl A))
+:=    sorted0 : sorted A R (nil A)
+    | sorted1 : forall (x:A), sorted A R (consl A x (nil A))
     | sortedS : forall (x y:A) (xs:list A), R x y -> sorted A R (consl A y xs) ->
                 sorted A R (consl A x (consl A y xs)).
 
@@ -91,7 +91,7 @@ Definition Xor : bool -> bool -> bool
 
 Definition is_nil (A:Set) : list A -> bool
 :=   fun (x: list A) => match x with
-                           emptyl => true
+                           nil => true
                          | _      => false
                         end.
 
@@ -130,29 +130,29 @@ Section Ejercicio4.
 
 Fixpoint length (A:Set) (xs: list A) : nat
 :=   match xs with
-        emptyl => 0
+        nil => 0
       | (consl y ys) => 1 + length A ys
      end.
 
 Fixpoint append (A:Set) (xs ys: list A) : list A
 :=   match xs with
-        emptyl => ys
+        nil => ys
       | consl x zs => consl A x (append A zs ys)
      end.
 
 
 Fixpoint reverse' (A:Set) (xs ys:list A): list A
 :=   match xs with
-        emptyl => ys
+        nil => ys
       | consl x zs => reverse' A zs (consl A x ys)
      end.
 
 Fixpoint reverse (A:Set) (xs:list A) : list A
-:=   reverse' A xs (emptyl A).
+:=   reverse' A xs (nil A).
 
 Fixpoint filter (A:Set) (f: A -> bool) (xs:list A) : list A
 :=   match xs with
-        emptyl => emptyl A
+        nil => nil A
       | consl y ys => if (f y)
                       then (consl A y (filter A f ys))
                       else (filter A f ys)
@@ -160,13 +160,13 @@ Fixpoint filter (A:Set) (f: A -> bool) (xs:list A) : list A
 
 Fixpoint map (A B:Set) (f:A->B) (xs:list A): list B
 :=   match xs with
-        emptyl => emptyl B
+        nil => nil B
       | consl y ys => consl B (f y) (map A B f ys)
      end.
 
 Fixpoint exists_ (A:Set) (p:A->bool) (xs:list A) : bool
 :=   match xs with
-        emptyl => false
+        nil => false
       | consl y ys => if (p y)
                       then true
                       else exists_ A p ys
@@ -221,7 +221,7 @@ Definition ListN := list nat.
 
 Fixpoint member (n:nat) (l:ListN) : bool
 :=   match l with
-        emptyl => false
+        nil => false
       | consl x xs => if (eq_nat x n)
                       then true
                       else member n xs
@@ -229,7 +229,7 @@ Fixpoint member (n:nat) (l:ListN) : bool
 
 Fixpoint delete (l:ListN) (x:nat) : ListN
 :=   match l with
-        emptyl => emptyl nat
+        nil => nil nat
       | consl n ns => if (eq_nat x n)
                       then delete ns x
                       else consl nat n (delete ns x)
@@ -237,7 +237,7 @@ Fixpoint delete (l:ListN) (x:nat) : ListN
 
 Fixpoint ordered_insert (n:nat) (l:ListN) : ListN
 :=   match l with
-        emptyl => consl nat n l
+        nil => consl nat n l
       | consl x xs => if leBool n x
                       then consl nat n l
                       else consl nat x (ordered_insert n xs)
@@ -246,17 +246,17 @@ Fixpoint ordered_insert (n:nat) (l:ListN) : ListN
 
 Fixpoint insert_sort' (l o:ListN) : ListN
 :=   match l with
-        emptyl => o
+        nil => o
       | consl x xs => insert_sort' xs (ordered_insert x o)
      end.
 
 
 Definition insert_sort (l:ListN) : ListN
-:=  insert_sort' l (emptyl nat).
+:=  insert_sort' l (nil nat).
 
 Fixpoint member' (A:Set) (eq:A->A->bool) (n:A) (l:list A) : bool
 :=   match l with
-        emptyl => false
+        nil => false
       | consl x xs => if (eq x n)
                       then true
                       else member' A eq n xs
@@ -264,7 +264,7 @@ Fixpoint member' (A:Set) (eq:A->A->bool) (n:A) (l:list A) : bool
 
 Fixpoint delete' (A:Set) (eq:A->A->bool) (l:list A) (x:A) : list A
 :=   match l with
-        emptyl => emptyl A
+        nil => nil A
       | consl n ns => if (eq x n)
                       then delete' A eq ns x
                       else consl A n (delete' A eq ns x)
@@ -272,7 +272,7 @@ Fixpoint delete' (A:Set) (eq:A->A->bool) (l:list A) (x:A) : list A
 
 Fixpoint ordered_insert' (A:Set) (le:A->A->bool) (n:A) (l:list A) : list A
 :=   match l with
-        emptyl => consl A n l
+        nil => consl A n l
       | consl x xs => if le n x
                       then consl A n l
                       else consl A x (ordered_insert' A le n xs)
@@ -281,13 +281,13 @@ Fixpoint ordered_insert' (A:Set) (le:A->A->bool) (n:A) (l:list A) : list A
 
 Fixpoint insert_sort_aux (A:Set) (le:A->A->bool) (l o:list A) : list A
 :=   match l with
-        emptyl => o
+        nil => o
       | consl x xs => insert_sort_aux A le xs (ordered_insert' A le x o)
      end.
 
 
 Definition insert_sort'' (A:Set) (le:A->A->bool) (l:list A) : list A
-:=  insert_sort_aux A le l (emptyl A).
+:=  insert_sort_aux A le l (nil A).
 
 End Ejercicio6.
 
@@ -501,4 +501,5 @@ Proof.
 Qed.
 
 End Ejercicio9.
+
 
