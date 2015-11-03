@@ -250,8 +250,6 @@ Axiom eqGen1 : forall (x:A), ~(eqGen x x)=false.
 
 Lemma BorrarNoPertenece: forall (x:AB) (a:A), ~(Pertenece a (Borrar a x)).
 Proof.
-  
-  (*unfold not; intros.*)
   induction x.
   unfold not; intros.
  
