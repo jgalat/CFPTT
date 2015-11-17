@@ -510,7 +510,6 @@ Proof.
   inversion H5.
   inversion H8.
   inversion H5.
-  inversion H8.
   constructor; auto.
 Qed.
 
@@ -580,7 +579,7 @@ Proof.
   rewrite <- H26 in H22.
   inversion H22. (* nil *)
 
-  split; inversion H29; constructor.
+  split; constructor.
 
   split; inversion H29.
 Qed.
