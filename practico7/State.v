@@ -57,12 +57,12 @@ Record os : Set :=
        hcall : option Hyperv_call
     }.
 
-Definition oss_map : Set := os_ident -> os.
+Definition oss_map : Set := os_ident -> option os.
 
-Definition hypervisor_map : Set := os_ident -> (padd -> madd).
+Definition hypervisor_map : Set := os_ident -> option (padd -> option madd).
 
 Inductive content : Set
-:=     PT (va_to_ma : vadd -> madd)
+:=     PT (va_to_ma : vadd -> option madd)
      | RW (v : value)
      | Other.
 
@@ -83,7 +83,7 @@ Record page : Set :=
        page_owned_by : page_owner
     }.
 
-Definition system_memory : Set := madd -> page.
+Definition system_memory : Set := madd -> option page.
 
 (* Estado de la m\u00e1quina *)
 Record state : Set :=
@@ -96,15 +96,10 @@ Record state : Set :=
       memory : system_memory
     }.
 
-Parameter ctxt : context.
-
-Definition va_mapped_to_ma (s: state) (va: vadd) (ma: madd) : Prop
-:= exists (p: page) (vtm: vadd -> madd), page_content p = PT vtm /\
-   vtm va = ma.
 
 Definition update (m:system_memory) (ma:madd) (p: page) : system_memory
 := fun (ma': madd) => if (madd_eq ma ma')
-                      then p
+                      then Some p
                       else m ma.
 
 End State.
