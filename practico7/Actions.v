@@ -1,3 +1,4 @@
+(* Jorge Galat G-4882/8 *)
 (*******************************************************************
  * Este archivo especifica las acciones
  * (Como transformadores de estado)
